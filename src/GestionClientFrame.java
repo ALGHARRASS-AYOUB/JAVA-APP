@@ -39,10 +39,11 @@ import java.security.KeyStore.TrustedCertificateEntry;
 import javax.swing.JScrollPane;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.DefaultComboBoxModel;
 
-public class GestionClientFrame extends JFrame {
+public class GestionClientFrame extends JFrame  {
 
-	private JPanel contentPane;
+	private JPanel contentPaneClients;
 	private JTextField idClient;
 	private JTextField addLivraison;
 	private JTextField addFacturation;
@@ -74,33 +75,38 @@ public class GestionClientFrame extends JFrame {
 		});
 	}
 
-	Connection connexion = null;
+	
 	 java.sql.PreparedStatement st;
-	 String by,inCol;
+	 String by,inCol,gestionPaneOption;
 	 
 	 int id;
 	int no=0;
 	 Sexe genre = null;
 	 String sname=null,name = null,addL,addF,telnum,email,nss=null,status = null,dateN = null;
 	 
+	 Connection connexion=MainFrame.cx;
 	 ResultSet result;
 	 ResultSetMetaData metadata;
 	/**
 	 * Create the frame.
 	 */
 	public GestionClientFrame() {
+
+		
+
+		
 		setTitle("Gestion Clients");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1200, 600);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		setContentPane(contentPane);
-		contentPane.setLayout(null);
+		contentPaneClients = new JPanel();
+		contentPaneClients.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setContentPane(contentPaneClients);
+		contentPaneClients.setLayout(null);
 		
 		JPanel panel = new JPanel();
 		panel.setBorder(new TitledBorder(null, "Registration", TitledBorder.LEFT, TitledBorder.TOP, null, null));
 		panel.setBounds(0, 11, 408, 505);
-		contentPane.add(panel);
+		contentPaneClients.add(panel);
 		panel.setLayout(null);
 		
 		JLabel lblNewLabel = new JLabel("ID Client");
@@ -119,7 +125,7 @@ public class GestionClientFrame extends JFrame {
 		idClient = new JTextField();
 		idClient.setText("auto");
 		idClient.setEditable(false);
-		idClient.setEnabled(false);
+//		idClient.setEnabled(false);
 		idClient.setToolTipText("");
 		idClient.setBounds(189, 22, 200, 20);
 		panel.add(idClient);
@@ -159,14 +165,7 @@ public class GestionClientFrame extends JFrame {
 		entreprisePanel.setVisible(false);
 		entreprisePanel.setLayout(null);
 
-//		
-//		JRadioButton clientP = new JRadioButton("Client Physique");
-//		clientP.setBounds(3, 155, 109, 23);
-//		panel.add(clientP);
-//		
-//		JRadioButton clientE = new JRadioButton("Client Entreprise");
-//		clientE.setBounds(200, 162, 109, 23);
-//		panel.add(clientE);
+
 		
 		String []clientOption= {"client Physique","Entreprise"};
 		JComboBox clientType = new JComboBox(clientOption);
@@ -283,8 +282,6 @@ public class GestionClientFrame extends JFrame {
 		entreprisePanel.add(lblNewLabel_1_4_1);
 
 		
-		connectDB();
-		
 		
 		JButton register = new JButton("Registrer");
 		register.addActionListener(new ActionListener() {
@@ -309,17 +306,19 @@ public class GestionClientFrame extends JFrame {
 						 genre=Sexe.feminin;
 					 if(genreM.isSelected())
 						 genre=Sexe.masculin;
-					 dateN=date.getText();
 					 nss=nssF.getText();
 				 }
 
 	/*--------------------------------------------------------------------------*/
 				 /*------------------------------------- client entreprise -------------------------------------*/
 				 
-				 else if(by.equals("entreprise")) {
+				 else if(by.equals("Entreprise")) {
 					 name=nomEse.getText();
+					 sname=null;
+					 email=GestionClientFrame.this.emailF.getText();
 					 status=GestionClientFrame.this.statusF.getText();
 					 no=Integer.parseInt(GestionClientFrame.this.noF.getText());
+					 nss=null;dateN=null;genre=null;
 				}
 				 
 				 else {
@@ -366,8 +365,8 @@ public class GestionClientFrame extends JFrame {
 		
 		JPanel panel_1 = new JPanel();
 		panel_1.setBorder(new TitledBorder(null, "Rechrcher un client ", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panel_1.setBounds(513, 11, 541, 53);
-		contentPane.add(panel_1);
+		panel_1.setBounds(513, 11, 518, 53);
+		contentPaneClients.add(panel_1);
 		panel_1.setLayout(null);
 		
 		JButton btnRechercher = new JButton("Rechercher");
@@ -388,7 +387,7 @@ public class GestionClientFrame extends JFrame {
 		
 		chercherInput = new JTextField();
 		chercherInput.setColumns(10);
-		chercherInput.setBounds(139, 25, 280, 20);
+		chercherInput.setBounds(139, 25, 265, 20);
 		panel_1.add(chercherInput);
 		String []options= {"id","nom","nss","no"};
 		JComboBox comboBox = new JComboBox(options);
@@ -398,17 +397,17 @@ public class GestionClientFrame extends JFrame {
 				System.out.println(inCol);
 			}
 		});
-		comboBox.setBounds(429, 24, 102, 22);
+		comboBox.setBounds(407, 24, 92, 22);
 		panel_1.add(comboBox);
 		
 		JPanel panel_5 = new JPanel();
 		panel_5.setBorder(new TitledBorder(null, "Informations", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		panel_5.setBounds(408, 85, 776, 431);
-		contentPane.add(panel_5);
+		contentPaneClients.add(panel_5);
 		panel_5.setLayout(null);
 		
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(10, 24, 756, 396);
+		scrollPane.setBounds(20, 24, 756, 396);
 		panel_5.add(scrollPane);
 		//		------------------------------------------------------------------------------------------------------------
 		//		--------------------------------------- get Values into fields  ---------------------------------------------------------------------
@@ -420,25 +419,35 @@ public class GestionClientFrame extends JFrame {
 						DefaultTableModel Df=(DefaultTableModel) table.getModel();
 						try {
 							idClient.setText(Df.getValueAt(table.getSelectedRow(), 0).toString());
-							 if(by.equals("client Physique"))
-								 nom.setText(Df.getValueAt(table.getSelectedRow(), 1).toString());
-							 if(by.equals("entreprise"))
-								 nomEse.setText(Df.getValueAt(table.getSelectedRow(), 1).toString());
-							prenom.setText(Df.getValueAt(table.getSelectedRow(), 2).toString());
+							addLivraison.setText(Df.getValueAt(table.getSelectedRow(), 8).toString());
+							addFacturation.setText(Df.getValueAt(table.getSelectedRow(), 7).toString());
 							tel.setText(Df.getValueAt(table.getSelectedRow(), 3).toString());
 							emailF.setText(Df.getValueAt(table.getSelectedRow(), 4).toString());
-							date.setText(Df.getValueAt(table.getSelectedRow(), 5).toString());
-							if (Df.getValueAt(table.getSelectedRow(),6).toString().equals("feminin"))
-								genreF.setSelected(true);
-							else 
-								genreM.setSelected(true);
-							addFacturation.setText(Df.getValueAt(table.getSelectedRow(), 7).toString());
-							addLivraison.setText(Df.getValueAt(table.getSelectedRow(), 8).toString());
-							
-							nssF.setText(Df.getValueAt(table.getSelectedRow(), 9).toString());
-							statusF.setText(Df.getValueAt(table.getSelectedRow(), 10).toString());
-							noF.setText(Df.getValueAt(table.getSelectedRow(), 11).toString());
-							
+							if(by.equals("client Physique")) {
+								
+								nomEse.setText("");
+								statusF.setText("");
+								noF.setText("");
+								nom.setText(Df.getValueAt(table.getSelectedRow(), 1).toString());
+								prenom.setText(Df.getValueAt(table.getSelectedRow(), 2).toString());
+								date.setText(Df.getValueAt(table.getSelectedRow(), 5).toString());
+								if (Df.getValueAt(table.getSelectedRow(),6).toString().equals("feminin"))
+									genreF.setSelected(true);
+								else 
+									genreM.setSelected(true);
+								nssF.setText(Df.getValueAt(table.getSelectedRow(), 9).toString());								
+							}
+							 if(by.equals("Entreprise")) {
+								 nom.setText("");
+								 prenom.setText("");
+								 genreF.setSelected(false);
+								 genreM.setSelected(false);
+								 nssF.setText("");
+								 date.setText("");
+								 nomEse.setText(Df.getValueAt(table.getSelectedRow(), 1).toString());
+								 statusF.setText(Df.getValueAt(table.getSelectedRow(), 10).toString());
+								 noF.setText(Df.getValueAt(table.getSelectedRow(), 11).toString());
+							 }
 							
 						} catch (NullPointerException ne) {
 							
@@ -491,30 +500,39 @@ public class GestionClientFrame extends JFrame {
 					 addF=addFacturation.getText();
 					 email=GestionClientFrame.this.emailF.getText();
 					 telnum=tel.getText();
-					
-					/*				 --------------- CLIENT PHUSIQUE -------------------*/ 
+					 
+					 
+	/*				 --------------- CLIENT PHUSIQUE -------------------*/ 
 					
 					 if(by.equals("client Physique")) {
 						 name=nom.getText();
 						 sname=prenom.getText();
 						 email=GestionClientFrame.this.emailF.getText();
 						 dateN=date.getText();
-						 if(genreF.isSelected()) {
+						 if(genreF.isSelected())
 							 genre=Sexe.feminin;
-							 genreM.setSelected(false);
-						 }
-						 if(genreM.isSelected()) {
+						 if(genreM.isSelected())
 							 genre=Sexe.masculin;
-							 genreF.setSelected(false);
-						 }
-						 dateN=date.getText();
 						 nss=nssF.getText();
 					 }
 
 		/*--------------------------------------------------------------------------*/
 					 /*------------------------------------- client entreprise -------------------------------------*/
 					 
-					 else if(by.equals("entreprise")) {
+					 else if(by.equals("Entreprise")) {
+						 name=nomEse.getText();
+						 sname=null;
+						 email=GestionClientFrame.this.emailF.getText();
+						 status=GestionClientFrame.this.statusF.getText();
+						 no=Integer.parseInt(GestionClientFrame.this.noF.getText());
+						 nss=null;dateN=null;genre=null;
+				
+					 }
+
+		/*--------------------------------------------------------------------------*/
+					 /*------------------------------------- client entreprise -------------------------------------*/
+					 
+					 else if(by.equals("Entreprise")) {
 						 name=nomEse.getText();
 						 status=GestionClientFrame.this.statusF.getText();
 						 no=Integer.parseInt(GestionClientFrame.this.noF.getText());
@@ -546,7 +564,7 @@ public class GestionClientFrame extends JFrame {
 			}
 		});
 		btnModifier.setBounds(418, 527, 102, 23);
-		contentPane.add(btnModifier);
+		contentPaneClients.add(btnModifier);
 		
 		JButton btnSupprimer = new JButton("Supprimer");
 		btnSupprimer.addActionListener(new ActionListener() {
@@ -577,7 +595,7 @@ public class GestionClientFrame extends JFrame {
 			}
 		});
 		btnSupprimer.setBounds(530, 527, 102, 23);
-		contentPane.add(btnSupprimer);
+		contentPaneClients.add(btnSupprimer);
 		
 		JButton displayAllBtn = new JButton("Afficher tous");
 		displayAllBtn.addActionListener(new ActionListener() {
@@ -591,8 +609,45 @@ public class GestionClientFrame extends JFrame {
 					 }
 			
 		});
-		displayAllBtn.setBounds(936, 65, 114, 16);
-		contentPane.add(displayAllBtn);
+		displayAllBtn.setBounds(917, 65, 114, 16);
+		contentPaneClients.add(displayAllBtn);
+		JComboBox gestionCombox = new JComboBox();
+		gestionCombox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				gestionPaneOption=(String) gestionCombox.getSelectedItem();
+				System.out.println(gestionPaneOption);
+				if(gestionPaneOption.equals("Gestion Articles")) {
+					EventQueue.invokeLater(new Runnable() {
+						public void run() {
+							try {
+								GestionArticleFrame frame = new GestionArticleFrame();
+								frame.setVisible(true);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					});
+					dispose();
+				}
+					if(gestionPaneOption.equals("Gestion Commandes")) {
+					EventQueue.invokeLater(new Runnable() {
+						public void run() {
+							try {
+								GestionCommandeFrame frame = new GestionCommandeFrame();
+								frame.setVisible(true);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					});
+				  }
+					dispose();
+				}
+			
+		});
+		gestionCombox.setModel(new DefaultComboBoxModel(new String[] {"Gestion Clients", "Gestion Articles", "Gestion Commandes"}));
+		gestionCombox.setBounds(1037, 7, 147, 22);
+		contentPaneClients.add(gestionCombox);
 		
 		
 	}
@@ -601,12 +656,12 @@ public class GestionClientFrame extends JFrame {
 		
 
 		//les requetes
+		DefaultTableModel Df=(DefaultTableModel) table.getModel();
 		try {
 			result=st.executeQuery();
 			System.out.println("the result of search : "+result);
 			metadata=result.getMetaData();
 			
-			DefaultTableModel Df=(DefaultTableModel) table.getModel();
 			Df.setRowCount(0);
 //			System.out.println(result);
 			while(result.next()) {
@@ -627,33 +682,13 @@ public class GestionClientFrame extends JFrame {
 					vect.add(result.getString("numeroNational"));
 				}
 				
-				Df.addRow(vect);
-				
+				Df.addRow(vect);	
 			}	
 			
 		} catch (SQLException ex) {
-			ex.printStackTrace();	
+			ex.printStackTrace();
+			Df.removeRow(id);	
+		}
+	}
 
-		}
-	}
-	void connectDB() {
-		
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			System.out.println("Acceder au Drive......... [OK]");
-		} catch (ClassNotFoundException ex) {
-			ex.printStackTrace();
-			System.out.println("le driver n est pas acce			ssible .");
-			System.exit(0);
-		}
-		try {
-			connexion =DriverManager.getConnection("jdbc:mysql://localhost:3306/gestioncommerce","root","");
-			System.out.println("acces au serveur mysql .............[OK]");
-		} catch (SQLException ex) {
-			
-			ex.printStackTrace();
-			System.out.println("impossible d'acceder au serveur mysql");
-			System.exit(0);
-		}
-	}
 }
